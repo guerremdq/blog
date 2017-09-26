@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: xbox | Facundo Guerrero]]></title>
+  <link href="http://www.facundoguerrero.com/blog/categories/xbox/atom.xml" rel="self"/>
+  <link href="http://www.facundoguerrero.com/"/>
+  <updated>2013-11-12T22:06:23-03:00</updated>
+  <id>http://www.facundoguerrero.com/</id>
+  <author>
+    <name><![CDATA[Facundo Guerrero]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Xbox360 vyatta firewall rules]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2013/11/11/xbox360-vyatta-firewall-rules/"/>
+    <updated>2013-11-11T13:32:00-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2013/11/11/xbox360-vyatta-firewall-rules</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://www.facundoguerrero.com.ar/images/vyatta_logo.gif" width="300" height="450"></p>
+
+<p>Para los que no lo concen <a href="http://www.vyatta.org/">Vyatta</a> es una distribución de GNU/Linux basada en <a href="http://www.debian.org">Debian</a> que funciona como router/firewall.</p>
+
+<p>Para que la Xbox se pueda connectar correctamente a XboxLive necesita que se pueda acceder a ella desde internet a los puerto 88 y 3074. En redes donde UPnP esta habilitado no es necesario realizar ninguna configuración en el firewall. En el caso de vyatta hay que crear las siguientes reglas de firewall  y NAT :</p>
+
+<ul>
+<li><p>Firewall rules :</p>
+
+<pre><code>  firewall {
+      name WanIn {
+           default-action drop
+           enable-default-log
+           rule 1 {
+           action drop
+           log enable
+           protocol all
+           state {
+               established enable
+               invalid disable
+               related enable
+           }
+           }
+           rule 2 {
+           action accept
+           description Xbox
+           destination {
+               port 88
+           }
+           protocol udp
+           }
+           rule 3 {
+           action accept
+           description Xbox
+           destination {
+               port 3074
+           }
+           protocol tcp_udp
+           }
+      }
+  }
+</code></pre></li>
+<li><p>NAT Rules :</p>
+
+<pre><code>  nat {
+      destination {
+      rule 2 {
+          destination {
+          port 88
+          }
+          inbound-interface eth2
+          protocol tcp
+          translation {
+          address 192.168.1.15
+          }
+      }
+      rule 2 {
+          description xbox
+          destination {
+          port 3074
+          }
+          inbound-interface eth2
+          protocol tcp_udp
+          translation {
+          address 192.168.1.15
+          }
+      }
+      }
+  }
+</code></pre></li>
+<li><p>192.168.1.15 es la IP de la XBOX</p></li>
+<li>eth2 es la interfaz WAN</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

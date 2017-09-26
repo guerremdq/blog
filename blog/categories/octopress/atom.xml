@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: octopress | Facundo Guerrero]]></title>
+  <link href="http://www.facundoguerrero.com/blog/categories/octopress/atom.xml" rel="self"/>
+  <link href="http://www.facundoguerrero.com/"/>
+  <updated>2013-11-12T22:06:23-03:00</updated>
+  <id>http://www.facundoguerrero.com/</id>
+  <author>
+    <name><![CDATA[Facundo Guerrero]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Instalar Octopress en Debian]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/11/04/instalar-octopress-en-debian/"/>
+    <updated>2012-11-04T14:47:00-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/11/04/instalar-octopress-en-debian</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://blog-guerrero.rhcloud.com/images/octopress2.jpg" width="300" height="450"></p>
+
+<p><blockquote><p>Octopress es un framework para Jekyll, desarrollado en Ruby, el cual nos permite generar de manera automática los archivos HTML, CSS y Javascript necesarios para poder tener un blog completamente funcional. A diferencia de otros CMS, no utiliza una base de datos para almacenar las entradas del blog y comentarios, en su lugar los post se redactan directamente en archivos de texto plano formateados en Markdown que posteriormente Jekyll se encargara de convertir en HTML</p></p><p><p></p><footer><strong>Perseo</strong> <cite><a href='http://perseo.desdelinux.net/'>perseo.desdelinux.net/&hellip;</a></cite></footer></blockquote></p>
+
+<!-- more -->
+
+
+<p>Instalamos los paquetes necesarios como root  :</p>
+
+<pre><code>$ apt-get install build-essential git rbenv zlib1g-dev libssl-dev ruby-build
+</code></pre>
+
+<p>Con el usuario que vamos a utilizar el blog, inicializamos rbenv de la siguiente manera :</p>
+
+<pre><code>$ rbenv init
+$ echo 'eval "$(rbenv init -)"' &gt;&gt; ~/.bashrc
+$ source ~/.bashrc
+</code></pre>
+
+<p>Instalamos la ultima version de Ruby :</p>
+
+<pre><code>$ rbenv install 1.9.3-p194
+$ rbenv rehash
+</code></pre>
+
+<p>Una vez que haya terminado estamos listos para utilizar octopress, para eso clonamos el repositorio de git.</p>
+
+<pre><code>$ mkdir blog
+$ git clone git://github.com/imathis/octopress.git blog/
+</code></pre>
+
+<p>Una vez hecho esto podemos seguir como indica la documentación oficial de <a href="http://octopress.org/docs/setup/">octopress</a></p>
+
+<pre><code>$ cd blog
+$ gem install bundler
+$ rbenv rehash
+$ bundle install
+$ rake install
+</code></pre>
+
+<p>Ahora ya pueden configurar su blog siguiendo las instrucciones de <a href="http://octopress.org/docs/configuring/">octopress</a></p>
+]]></content>
+  </entry>
+  
+</feed>

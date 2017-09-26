@@ -1,0 +1,997 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Facundo Guerrero]]></title>
+  <link href="http://www.facundoguerrero.com/atom.xml" rel="self"/>
+  <link href="http://www.facundoguerrero.com/"/>
+  <updated>2013-11-12T22:06:23-03:00</updated>
+  <id>http://www.facundoguerrero.com/</id>
+  <author>
+    <name><![CDATA[Facundo Guerrero]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Gitweb and Nginx]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2013/11/12/gitweb-and-nginx/"/>
+    <updated>2013-11-12T21:42:00-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2013/11/12/gitweb-and-nginx</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://www.facundoguerrero.com.ar/images/git-logo-big.png" width="300" height="450"></p>
+
+<p>Gitweb es una interfaz web para poder navegar los repositorios de git.</p>
+
+<pre><code>apt-get install gitweb
+</code></pre>
+
+<ul>
+<li>/etc/gitweb.conf : Archivo de configuración de gitweb. Por defecto busca los repositorios en /var/cache/git</li>
+</ul>
+
+
+<p>Nginx</p>
+
+<pre><code>apt-get install nginx 
+apt-get install fcgiwrap spawn-fcgi
+/etc/init.d/fcgiwrap status || /etc/init.d/fcgiwrap start
+</code></pre>
+
+<p>Nginx Conf:</p>
+
+<pre><code>location /index.cgi {
+    root /usr/share/gitweb/;
+    include fastcgi_params;
+    fastcgi_param SCRIPT_NAME $uri;
+    fastcgi_param GITWEB_CONFIG /etc/gitweb.conf;
+    fastcgi_pass  unix:/var/run/fcgiwrap.socket;
+}
+location / {
+    root /usr/share/gitweb/;
+    index index.cgi;
+}
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Xbox360 vyatta firewall rules]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2013/11/11/xbox360-vyatta-firewall-rules/"/>
+    <updated>2013-11-11T13:32:00-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2013/11/11/xbox360-vyatta-firewall-rules</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://www.facundoguerrero.com.ar/images/vyatta_logo.gif" width="300" height="450"></p>
+
+<p>Para los que no lo concen <a href="http://www.vyatta.org/">Vyatta</a> es una distribución de GNU/Linux basada en <a href="http://www.debian.org">Debian</a> que funciona como router/firewall.</p>
+
+<p>Para que la Xbox se pueda connectar correctamente a XboxLive necesita que se pueda acceder a ella desde internet a los puerto 88 y 3074. En redes donde UPnP esta habilitado no es necesario realizar ninguna configuración en el firewall. En el caso de vyatta hay que crear las siguientes reglas de firewall  y NAT :</p>
+
+<ul>
+<li><p>Firewall rules :</p>
+
+<pre><code>  firewall {
+      name WanIn {
+           default-action drop
+           enable-default-log
+           rule 1 {
+           action drop
+           log enable
+           protocol all
+           state {
+               established enable
+               invalid disable
+               related enable
+           }
+           }
+           rule 2 {
+           action accept
+           description Xbox
+           destination {
+               port 88
+           }
+           protocol udp
+           }
+           rule 3 {
+           action accept
+           description Xbox
+           destination {
+               port 3074
+           }
+           protocol tcp_udp
+           }
+      }
+  }
+</code></pre></li>
+<li><p>NAT Rules :</p>
+
+<pre><code>  nat {
+      destination {
+      rule 2 {
+          destination {
+          port 88
+          }
+          inbound-interface eth2
+          protocol tcp
+          translation {
+          address 192.168.1.15
+          }
+      }
+      rule 2 {
+          description xbox
+          destination {
+          port 3074
+          }
+          inbound-interface eth2
+          protocol tcp_udp
+          translation {
+          address 192.168.1.15
+          }
+      }
+      }
+  }
+</code></pre></li>
+<li><p>192.168.1.15 es la IP de la XBOX</p></li>
+<li>eth2 es la interfaz WAN</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Instalar OpenShift client tools en Debian]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/11/05/instalar-openshift-client-tools-en-debian/"/>
+    <updated>2012-11-05T01:11:00-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/11/05/instalar-openshift-client-tools-en-debian</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://blog-guerrero.rhcloud.com/images/openshift.jpeg" width="300" height="450">
+Openshift es una Plataforma como Servicio (PaaS) que permite correr aplicaciones en la nube.</p>
+
+<p>Openshift ofrece mayor flexibilidad que cualquier otra PaaS, soportando más frameworks de desarrollo para Java, Python, PHP y Ruby, incluidos Spring, Seam, Weld, CDI, Rails, Rack, Symfony, Zend Framework, Twisted, Django y Java EE. Incluye base de datos SQL y NoSQL y un sistema de archivos distribuidos.</p>
+
+<!-- more -->
+
+
+<p>Primer paso , instalmos los paquetes necesarios :</p>
+
+<pre><code>aptitude install git-core openssh-client ruby ruby-dev rubygems libopenssl-ruby
+</code></pre>
+
+<p>Segundo paso, instalamos el gem de ruby para openshift.</p>
+
+<pre><code>gem install --source http://gems.rubyforge.org --source https://openshift.redhat.com/app/repo/ rhc
+</code></pre>
+
+<p>Cuando esto finalice podemos empezar a utilizar la utilidad rhc.</p>
+
+<pre><code>$ rhc --help
+Usage: rhc (&lt;resource&gt; | --help) [&lt;action&gt;] [&lt;args&gt;]
+Command line interface for OpenShift.
+
+List of Commands and Resources
+  app                Manage applications within the OpenShift account.
+  domain             Manage the domain and namespace for your applications.
+  port-forward       Forward remote ports to the workstation
+  server             Display information about the status of the OpenShift service.
+  setup              Easy to use wizard for getting started with OpenShift.
+  sshkey             Manage multiple keys for the registered rhcloud user.
+
+Global Options
+  -l, --rhlogin login       OpenShift login
+  -p, --password password   OpenShift password
+  -d, --debug               Turn on debugging
+  --noprompt                Do not ask for input
+  --config FILE             Path of a different config file
+  -h, --help                Display help documentation
+  -v, --version             Display version information
+  -t, --trace               Display backtrace when an error occurs
+
+See 'rhc help &lt;resource&gt;' for more specifics on each resource or command.
+</code></pre>
+
+<p>Más información en https://openshift.redhat.com/app/</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Instalar Octopress en Debian]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/11/04/instalar-octopress-en-debian/"/>
+    <updated>2012-11-04T14:47:00-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/11/04/instalar-octopress-en-debian</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://blog-guerrero.rhcloud.com/images/octopress2.jpg" width="300" height="450"></p>
+
+<blockquote><p>Octopress es un framework para Jekyll, desarrollado en Ruby, el cual nos permite generar de manera automática los archivos HTML, CSS y Javascript necesarios para poder tener un blog completamente funcional. A diferencia de otros CMS, no utiliza una base de datos para almacenar las entradas del blog y comentarios, en su lugar los post se redactan directamente en archivos de texto plano formateados en Markdown que posteriormente Jekyll se encargara de convertir en HTML</p><footer><strong>Perseo</strong> <cite><a href='http://perseo.desdelinux.net/'>perseo.desdelinux.net/&hellip;</a></cite></footer></blockquote>
+
+
+
+
+<!-- more -->
+
+
+<p>Instalamos los paquetes necesarios como root  :</p>
+
+<pre><code>$ apt-get install build-essential git rbenv zlib1g-dev libssl-dev ruby-build
+</code></pre>
+
+<p>Con el usuario que vamos a utilizar el blog, inicializamos rbenv de la siguiente manera :</p>
+
+<pre><code>$ rbenv init
+$ echo 'eval "$(rbenv init -)"' &gt;&gt; ~/.bashrc
+$ source ~/.bashrc
+</code></pre>
+
+<p>Instalamos la ultima version de Ruby :</p>
+
+<pre><code>$ rbenv install 1.9.3-p194
+$ rbenv rehash
+</code></pre>
+
+<p>Una vez que haya terminado estamos listos para utilizar octopress, para eso clonamos el repositorio de git.</p>
+
+<pre><code>$ mkdir blog
+$ git clone git://github.com/imathis/octopress.git blog/
+</code></pre>
+
+<p>Una vez hecho esto podemos seguir como indica la documentación oficial de <a href="http://octopress.org/docs/setup/">octopress</a></p>
+
+<pre><code>$ cd blog
+$ gem install bundler
+$ rbenv rehash
+$ bundle install
+$ rake install
+</code></pre>
+
+<p>Ahora ya pueden configurar su blog siguiendo las instrucciones de <a href="http://octopress.org/docs/configuring/">octopress</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[¿ Por qué usar Galera ?]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/10/25/por-que-usar-galera/"/>
+    <updated>2012-10-25T01:34:00-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/10/25/por-que-usar-galera</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://www.facundoguerrero.com.ar/images/galera-ok.png" width="300" height="450"></p>
+
+<p>Por qué debemos usar Galera y no usar la replicación común de MySQL</p>
+
+<ul>
+<li><p>Ventajas :</p>
+
+<ul>
+<li>Galera es Multi-Master.</li>
+<li>Galera es syncronico.</li>
+<li>Galera es multi threaded, MySQL no.</li>
+<li>Galera es simple de escalar, MySQL necesita ser configurado manualmente.</li>
+<li>Galera acepta lecturas y escrituras en cualquier nodo, mejora ampliamente la performance.</li>
+<li>Galera no necesita hacer failover.</li>
+<li>Galera está preparado para redes WAN.</li>
+<li>No hay lag con el slave.</li>
+<li>No hay que setear la posision del bin log.</li>
+<li>Control automatico de los miembros.</li>
+<li>Se puede utilizar LoadBalancer.</li>
+<li>Repositorios de Percona y MariaDB.</li>
+</ul>
+</li>
+<li><p>Limitaciones :</p>
+
+<ul>
+<li>Solo soporta InnoDB.</li>
+<li>Se necesita una version de MySQL parcheada.</li>
+<li>Se necesitan 3 nodos para utilizarlo. Se puede utilizar solo 2 nodos + garbd.</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Si todavía no están convencidos de usarlo les recomiendo que lo prueben.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Two Factor authentication in ssh with Google]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/01/16/two-factor-authentication-in-ssh-with-google/"/>
+    <updated>2012-01-16T16:49:23-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/01/16/two-factor-authentication-in-ssh-with-google</id>
+    <content type="html"><![CDATA[<p>Siguiendo con el tema de los post anteriores sobre seguridad en nuestros server ssh vamos a agregarle una capa mas de seguridad a este. Para esto vamos a usar Google Authenticator que nos va a permitir tener una <a href="http://en.wikipedia.org/wiki/Two-factor_authentication">autenticación de 2 factores</a> en nuestros servidor.</p>
+
+<p>Primero tenemos que instalar Google Authenticator en nuestros teléfonos celulares .<a href="http://support.google.com/accounts/bin/answer.py?hl=en&amp;answer=1066447"> Link</a></p>
+
+<p>Ahora configuremos nuestro servidor :</p>
+
+<blockquote><p>apt-get install libpam0g-dev hgsvn</p></blockquote>
+
+<p>Ahora descargamos el codigo usando hgsvn y lo compilamos</p>
+
+<blockquote><p>hg clone https://google-authenticator.googlecode.com/hg/ google-authenticator/
+cd google-authenticator/libpam
+make
+make install</p></blockquote>
+
+<p>Para que esto funcione tenemos que agregar esta linea al inicio del archivo /etc/<a href="http://es.wikipedia.org/wiki/Autenticaci%C3%B3n#PAM">pam</a>.d/sshd</p>
+
+<pre><code>auth required pam_google_authenticator.so
+</code></pre>
+
+<p>También tenemos que agregar una linea en la configuracion del daemon ssh en /etc/ssh/sshd_config</p>
+
+<pre><code>ChallengeResponseAuthentication yes
+</code></pre>
+
+<p>Ahora entramos usando la cuenta de usuario que usamos para loguearnos por ssh y ejecutamos el siguiente comando :</p>
+
+<blockquote><p>google-authenticator</p></blockquote>
+
+<p>Este comando nos va a generar las configuraciones para autenticar cada usuario.</p>
+
+<pre><code>Do you want authentication tokens to be time-based (y/n) y
+https://www.google.com/chart?chs=200x200&amp;chld=M|0&amp;cht=qr&amp;chl=otpauth://totp/user@domain%3Fsecret%3**QWE88RTYUI12GE34**
+Your new secret key is:** QWE88RTYUI12GE34**
+Your verification code is 123456
+Your emergency scratch codes are:
+429111197
+211111111
+42222227
+133333330
+344444440
+
+Do you want me to update your "/home/guerre/.google_authenticator" file (y/n) y
+
+Do you want to disallow multiple uses of the same authentication
+token? This restricts you to one login about every 30s, but it increases
+your chances to notice or even prevent man-in-the-middle attacks (y/n) y
+
+By default, tokens are good for 30 seconds and in order to compensate for
+possible time-skew between the client and the server, we allow an extra
+token before and after the current time. If you experience problems with poor
+time synchronization, you can increase the window from its default
+size of 1:30min to about 4min. Do you want to do so (y/n) n
+
+If the computer that you are logging into isn't hardened against brute-force
+login attempts, you can enable rate-limiting for the authentication module.
+By default, this limits attackers to no more than 3 login attempts every 30s.
+Do you want to enable rate-limiting (y/n) y
+</code></pre>
+
+<p>Los emergency scratch codes hay que guardarlos en un lugar seguro ya que en caso de perder el smartphone son los unicos que van a abrir el sistema.</p>
+
+<p>Abrimos la url que nos da y escanemos el código desde nuestro celular con la aplicación google authenticator.</p>
+
+<p><a href="http://blog-guerrero.rhcloud.com/uploads/2012/01/phoneshot.png"><img src="http://blog-guerrero.rhcloud.com/uploads/2012/01/phoneshot-300x173.png" alt="" /></a></p>
+
+<p>Por ultimo reiniciamos el servidor ssh</p>
+
+<blockquote><p>/etc/init.d/ssh restart</p></blockquote>
+
+<p>Ahora cuando nos conectemos por ssh nos va a pedir el código de autenticación</p>
+
+<p><a href="http://blog-guerrero.rhcloud.com/uploads/2012/01/google-token.png"><img src="http://blog-guerrero.rhcloud.com/uploads/2012/01/google-token.png" alt="" /></a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[NFS & Iptables]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/01/15/nfs-iptables/"/>
+    <updated>2012-01-15T08:36:36-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/01/15/nfs-iptables</id>
+    <content type="html"><![CDATA[<p>Para usar iptables en un servidor nfs necesitamos especificar los puertos donde queremos que el servidor corra.</p>
+
+<p>En caso que sea un servidor Debian tenemos que editar varios archivos</p>
+
+<p>/etc/default/nfs-common</p>
+
+<pre><code>STATDOPTS="--port 32765 --outgoing-port 32766"
+</code></pre>
+
+<p>/etc/default/nfs-kernel-server</p>
+
+<pre><code>RPCMOUNTDOPTS="-p 32767"
+</code></pre>
+
+<p>/etc/default/quota</p>
+
+<pre><code>RPCRQUOTADOPTS="-p 32769"
+</code></pre>
+
+<p>/etc/modprobe.d/local.conf</p>
+
+<pre><code> options lockd nlm_udpport=32768 nlm_tcpport=32768
+ options nfs callback_tcpport=32764
+</code></pre>
+
+<p>En caso que sea un servidor CentOS o Redhat editamos el siguiente archivo /etc/sysconfig/nfs</p>
+
+<pre><code>LOCKD_TCPPORT=32768
+LOCKD_UDPPORT=32768
+MOUNTD_PORT=32767
+RQUOTAD_PORT=32769
+STATD_PORT=32765
+STATD_OUTGOING_PORT=32766
+</code></pre>
+
+<p>Este es un ejemplo de los puertos que podemos usar.</p>
+
+<p>Para asegurarnos que estos cambios tuvieron efecto podemos ver la salida del comando rpcinfo</p>
+
+<pre><code>jack ~ # rpcinfo -p localhost
+programa vers proto puerto
+100000 2 tcp 111 portmapper
+100000 2 udp 111 portmapper
+100024 1 udp 32765 status
+100024 1 tcp 32765 status
+100021 1 udp 32768 nlockmgr
+100021 3 udp 32768 nlockmgr
+100021 4 udp 32768 nlockmgr
+100021 1 tcp 32768 nlockmgr
+100021 3 tcp 32768 nlockmgr
+100021 4 tcp 32768 nlockmgr
+100003 2 tcp 2049 nfs
+100003 3 tcp 2049 nfs
+100003 4 tcp 2049 nfs
+100003 2 udp 2049 nfs
+100003 3 udp 2049 nfs
+100003 4 udp 2049 nfs
+100005 1 udp 32767 mountd
+100005 1 tcp 32767 mountd
+100005 2 udp 32767 mountd
+100005 2 tcp 32767 mountd
+100005 3 udp 32767 mountd
+100005 3 tcp 32767 mountd
+</code></pre>
+
+<p>Ahí se ve que los puertos fueron seteados correctamente.</p>
+
+<p><strong>IPTABLES</strong></p>
+
+<p>Primero guardamos nuestra configuración para poder agregarle las nuevas reglas.</p>
+
+<blockquote><p>iptables-save > iptables-nfs</p></blockquote>
+
+<p>editamos el archivo iptables-nfs y agregamos las nuevas reglar para permitir el acceso a servidor nfs solo para nuestra red local</p>
+
+<figure class='code'><figcaption><span>IPTABLES </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#NFS PORTS
+</span><span class='line'>  -A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 2049 -j ACCEPT
+</span><span class='line'>  -A INPUT -s 192.168.0.0/24 -p udp -m udp --dport 2049 -j ACCEPT
+</span><span class='line'>  -A INPUT -p tcp -m tcp --dport 2049 -j DROP
+</span><span class='line'>  #Lockd upd & tcp
+</span><span class='line'>  -A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 32768 -j ACCEPT
+</span><span class='line'>  -A INPUT -s 192.168.0.0/24 -p udp -m udp --dport 32768 -j ACCEPT
+</span><span class='line'>  -A INPUT -p tcp -m tcp --dport 32768 -j DROP
+</span><span class='line'>  -A INPUT -p udp -m udp --dport 32768 -j DROP
+</span><span class='line'>  #portmaper
+</span><span class='line'>  -A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 111 -j ACCEPT
+</span><span class='line'>  -A INPUT -p tcp -m tcp --dport 111 -j DROP
+</span><span class='line'>  #Mountd
+</span><span class='line'>  -A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 32767 -j ACCEPT
+</span><span class='line'>  -A INPUT -p tcp -m tcp --dport 32767 -j DROP
+</span><span class='line'>  #quota
+</span><span class='line'>  -A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 32769 -j ACCEPT
+</span><span class='line'>  -A INPUT -p tcp -m tcp --dport 32769 -j DROP
+</span><span class='line'>  #statd  
+</span><span class='line'>  -A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 32765 -j ACCEPT
+</span><span class='line'>  -A INPUT -p tcp -m tcp --dport 32765 -j DROP</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Guardamos el archivo con las siguientes reglas y lo restauramos.</p>
+
+<blockquote><p>iptables-restore iptables-nfs</p></blockquote>
+
+<p>Ahora solo van a poder ingresar al nfs los hosts en la red 192.168.0.0/24</p>
+
+<p>Fuentes :</p>
+
+<p>http://wiki.debian.org/SecuringNFS</p>
+
+<p>http://wiki.debian.org/iptables</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Previniendo ataques de fuerza bruta por ssh]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/01/14/previniendo-ataques-de-fuerza-bruta-por-ssh/"/>
+    <updated>2012-01-14T15:24:39-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/01/14/previniendo-ataques-de-fuerza-bruta-por-ssh</id>
+    <content type="html"><![CDATA[<p>Para evitar ataques a nuestro servidor ssh tenemos varios deamons que se encargan de esto, para este ejemplo yo instale denyhost</p>
+
+<p>Para que denyhost funcione tenemos que chequear que nuestro server ssh usar TCP Wrappers</p>
+
+<blockquote><p> ldd /usr/sbin/sshd | grep libwrap</p></blockquote>
+
+<pre><code>libwrap.so.0 =&gt; /lib/libwrap.so.0 (0x00007f3d45b5c000)
+</code></pre>
+
+<p> Luego lo instalamos.</p>
+
+<blockquote><p>apt-get install denyhost</p></blockquote>
+
+<p>denyhost es un script en python que analiza el log del ssh para determinar que hosts están intentando ingresar a la fuerza</p>
+
+<p>La configuración del mismo es muy sencilla. Las opciones que vienen por default son muy utiles.</p>
+
+<blockquote><p>vi /etc/denyhost.conf</p></blockquote>
+
+<pre><code>SECURE_LOG = /var/log/auth.log
+HOSTS_DENY = /etc/hosts.deny
+BLOCK_SERVICE = sshd
+DENY_THRESHOLD_INVALID = 3
+DENY_THRESHOLD_VALID = 5
+DENY_THRESHOLD_ROOT = 1
+ADMIN_EMAIL = root@localhost
+SMTP_HOST = localhost
+SMTP_PORT = 25
+</code></pre>
+
+<p>Con estas opciones bloqueamos a los hosts que quieran ingresar al sistema con un usuario invalido, esto quiere decir que no se encuentra en /etc/passwd, luego de 3 intentos. Los hosts que quieran ingresar con usuarios validos serán bloqueados luego de 5 intentos fallidos y los que quieren ingresar como root serán bloqueados luego de 1 intento .</p>
+
+<p>Cuando bloquee a un host va a mandar un mail a la dirección que le especifiquemos en ADMIN_EMAIL .</p>
+
+<p>Los bloqueos a los hosts lo hace por tcpwrapper desde el archivo /etc/hosts.deny</p>
+
+<blockquote><p>cat /etc/hosts.deny</p></blockquote>
+
+<pre><code>sshd: 121.186.155.197
+sshd: 178.18.18.120
+</code></pre>
+
+<p>En este archivo vamos a encontrar todas las direcciones ip&#8217;s que denyhost bloqueo .</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Seguridad en el daemon sshd ]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/01/14/seguridad-en-el-daemon-sshd/"/>
+    <updated>2012-01-14T14:27:32-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/01/14/seguridad-en-el-daemon-sshd</id>
+    <content type="html"><![CDATA[<p>Después de haber visto en el post anterior los ataques por fuerza bruta al ssh tenemos que tomar medidas para evitarlos.</p>
+
+<p>Primero vamos a cambiar algunos valores en el daemon sshd , para eso editamos el siguiente archivo /etc/ssh/sshd_config</p>
+
+<p>acá podemos cambiar el puerto en cual escucha el sshd y deshabilitar el acceso como root .</p>
+
+<pre><code>Port 6574
+PermitRootLogin no
+</code></pre>
+
+<p>Ya con esto nuestro ssh no atiende mas en el puerto 22 y no permite loguearse como root.  También podemos desactivar el acceso por password pero para esto necesitaríamos tener copiada la llave publica en las maquinas desde donde estaríamos conectándonos.</p>
+
+<pre><code>PasswordAuthentication no
+</code></pre>
+
+<p>Otra de las opciones que nos da el sshd es permitir solamente que ciertos usuarios o grupos se conecten a el :</p>
+
+<pre><code>AllowGroups ssh_users
+AllowUsers user1 user2
+</code></pre>
+
+<p>Despues de editar estas opciones reiniciamos el daemon :</p>
+
+<blockquote><p>/etc/init.d/ssh restart</p></blockquote>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Detectando fuerza bruta en ssh ]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/01/14/detectando-fuerza-bruta-en-ssh/"/>
+    <updated>2012-01-14T13:47:38-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/01/14/detectando-fuerza-bruta-en-ssh</id>
+    <content type="html"><![CDATA[<p>Hoy mirando el log de autenticación  me di cuenta que tenia muchos intentos de ingreso por ssh de distintas ip&#8217;s.  También mirándolo con mas detalle vi que no solo querían entrar como root, sino que probaron diferentes usuarios.</p>
+
+<p>Para ver con que usuarios inválidos que probaron entrar a nuestro sistema ejecutamos el siguiente comando :</p>
+
+<blockquote><p>cat /var/log/auth.log | grep  &#8221;Invalid user&#8221; | awk &#8216;{print $8&#8217;} | sort -u</p></blockquote>
+
+<p>Para ver las IP de estos intentos :</p>
+
+<blockquote><p>cat /var/log/auth.log | grep  &#8221;Invalid user&#8221; | awk &#8216;{print $10&#8217;} | sort -u</p></blockquote>
+
+<p>En caso de que queramos ver desde que direccion ip provino cada intento de login agregamos valores al awk</p>
+
+<blockquote><p>cat auth.log | grep  &#8221;Invalid user&#8221; | awk &#8216;{print $8 &#8221; &#8221;  $9 &#8221; &#8221; $10 &#8216;} | sort -u</p></blockquote>
+
+<p>en todos los casos uso sort -u para ordenarlos por un único valor, así no vemos los repetidos.</p>
+
+<p>Acá vamos a ver la dirección ip de los intentos de login de usuarios existentes con mas 5 intentos fallidos:</p>
+
+<blockquote><p>cat /var/log/auth.log | grep &#8220;5 more&#8221; | awk {&#8216;print $16&#8217;} | sort  -u | cut -f2 -d=</p></blockquote>
+
+<p>En el próximo post voy a explicar como hacer mas seguro el ssh para prevenir estos tipos de ataque.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Direcciones IP sin uso]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/01/04/direcciones-ip-sin-uso/"/>
+    <updated>2012-01-04T11:19:47-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/01/04/direcciones-ip-sin-uso</id>
+    <content type="html"><![CDATA[<p>Si queremos saber que direcciones IP no están siendo utilizadas en un determinado rango podemos usar nmap para obtener esa información</p>
+
+<blockquote><p>nmap -sP -v  192.168.1.1-254 | grep -v nmap | grep down | awk {&#8216;print $5&#8217;}</p></blockquote>
+
+<p>Este nos va a mostrar todas las ip que en este momento no estan utilizadas en ese rango.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Creación de vps con openvz]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2011/11/10/creacion-de-vps-con-openvz/"/>
+    <updated>2011-11-10T10:01:39-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2011/11/10/creacion-de-vps-con-openvz</id>
+    <content type="html"><![CDATA[<p>En el post anterior explique como instalar y configurar el kernel de OpenVZ, ahora vamos a hablar sobre como utilizarlo. Nos vamos a centrar en las tareas de crear , eliminar y cambiar las configuraciones de los vps.</p>
+
+<p>Lo primero que necesitamos hacer es descargarnos algún template para crear el vps. Aca estan los templates disponibles http://download.openvz.org/template/precreated/ .  Los templates que descarguemos tenemos que ponerlos en /vz/templates/cache .</p>
+
+<blockquote><p>cd /vz/templates/cache</p>
+
+<p>wget http://download.openvz.org/template/precreated/debian-6.0-x86_64.tar.gz</p></blockquote>
+
+<p>Ahora vamos a crear nuestro primer vps con el template que acabos de descargar</p>
+
+<blockquote><p>vzctl create 101 &#8211;ostemplate debian-6.0-x86_64 &#8211;ipadd 192.168.0.100</p>
+
+<p>vzctl set 101 &#8211;hostname debian-vps &#8211;onboot yes &#8211;nameserver 8.8.8.8 &#8211;nameserver 4.2.2.1 &#8211;save</p></blockquote>
+
+<p>Con esto ya creamos el nuevo vps y definimos algunos valores como la ip, el hostnme y los servidores dns. Ahora tenemos que prender nuestro server</p>
+
+<blockquote><p>vzctl start 101</p></blockquote>
+
+<p>Si queremos ejecutar comandos dentro del vps podemos hacerlo haciendo</p>
+
+<blockquote><p>vzctl exec 101 passwd</p></blockquote>
+
+<p>así cambiamos la password de root.</p>
+
+<p>También podemos entrar dentro del vps :</p>
+
+<blockquote><p>vzctl enter 101</p></blockquote>
+
+<p>Ahora vamos a ver los comandos para apagarlo y y eliminarlo</p>
+
+<blockquote><p>vzctl stop 101 #detiene el vps</p>
+
+<p>vzctl destroy 101 #elimina el vps del disco rigido</p></blockquote>
+
+<p>Para ver los vps que tenemos corriendo en nuestro servidor tenemos el siguiente comando</p>
+
+<blockquote><p>vzlist -a</p></blockquote>
+
+<p>Para mas informacion pueden hacer</p>
+
+<blockquote><p>man vzctl</p></blockquote>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Vlans en CentOS]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2011/11/10/vlans-en-centos/"/>
+    <updated>2011-11-10T09:34:59-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2011/11/10/vlans-en-centos</id>
+    <content type="html"><![CDATA[<p>Si en nuestra red estamos usando VLAN&#8217;s vamos a tener que taggearla en la interfaz ethernet.</p>
+
+<p>Lo podemos hacer de la siguiente manera (vamos a suponer que estamos usando la vlan 107 ):</p>
+
+<blockquote><p>vconfig add eth0 107
+ifconfig eth0.107  ip.del.equipo netmsk xxx.xxx.xxx.x</p></blockquote>
+
+<p>De esta manera ya tendríamos nuestra interfaz eth0 con la vlan 107.</p>
+
+<p>También podemos hacer esto edit</p>
+
+<p>ando los archivos de configuración de la interfaz, así cuando el equipo se reinicie no perdamos la configuración .</p>
+
+<p>Tenemos que editar los archivos que se encuentran en : /etc/sysconfig/network-scripts</p>
+
+<p>El primer archivo a editar es ifcfg-eth0 que nos debería quedar de esta manera:</p>
+
+<pre><code>DEVICE=eth0
+HWADDR=00:21:xx:xx:xx:xx:xx
+NM_CONTROLLED=yes
+ONBOOT=yes
+BOOTPROTO=none
+TYPE=Ethernet
+IPV6INIT=no
+USERCTL=no
+</code></pre>
+
+<p>Ahora creamos el archivo eth0.107 ahí vamos a especificar la dirección ip y la vlan</p>
+
+<pre><code>GATEWAY=ip.del.gateway
+DNS1=8.8.8.8
+DEVICE=eth0.107
+BOOTPROTO=none
+NETMASK=255.255.255.0
+DNS2=xxx.xxx.xxx.xxx
+HWADDR=00:21:xx:xx:ax:xx
+IPADDR=ip.del.equipo
+ONBOOT=yes
+VLAN=yes
+</code></pre>
+
+<p>De esta manera ya tendríamos configurada la vlan 107 en nuestra interfaz ethernet.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Migrar maquinas KVM offline]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2011/11/07/migracion-de-maquinas-kvm-offline/"/>
+    <updated>2011-11-07T14:15:43-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2011/11/07/migracion-de-maquinas-kvm-offline</id>
+    <content type="html"><![CDATA[<p><a href="http://blog-guerrero.rhcloud.com/uploads/2011/11/kvmbanner-logo2.png"><img src="http://blog-guerrero.rhcloud.com/uploads/2011/11/kvmbanner-logo2.png" alt="" /></a>Acá dejo un ejemplo de como migrar una maquina virtual desde un servidor a otro sin perder la configuración de la misma.  Para este ejemplo utilizo una maquina llamada debian-nagios que la voy a pasar desde IP.SERVER.KVM a IP.SERVER.NUEVO .</p>
+
+<p>Nos conectamos al server</p>
+
+<p><em># ssh root@ IP.SERVER.KVM</em></p>
+
+<p>Vemos las maquinas prendidas</p>
+
+<p><em># virsh list</em></p>
+
+<p>Apaga la maquina seleccionada</p>
+
+<p><em># virsh shutdown debian-nagios</em></p>
+
+<p>Exportamos la configuración de la maquina a un xml</p>
+
+<p><em># virsh dumpxml debian-nagios > debian-nagios.xml</em></p>
+
+<p>Dentro del archivo vamos a ver algo asi :</p>
+
+<blockquote><p><domain type='kvm'></p></blockquote>
+
+<p><name>debian-nagios</name></p>
+
+<p><uuid>41e7b746-a79b-8297-d3ec-e1fa5f41f3f9</uuid></p>
+
+<p><memory>1048576</memory></p>
+
+<p><currentMemory>1048576</currentMemory></p>
+
+<p><vcpu>1</vcpu></p>
+
+<p><os></p>
+
+<p><type arch='x86_64' machine='rhel5.4.0'>hvm</type></p>
+
+<p><boot dev='hd'/></p>
+
+<p></os></p>
+
+<p><features></p>
+
+<p><acpi/></p>
+
+<p><apic/></p>
+
+<p><pae/></p>
+
+<p></features></p>
+
+<p><clock offset='utc'></p>
+
+<p><timer name='pit' tickpolicy='delay'/></p>
+
+<p></clock></p>
+
+<p><on_poweroff>destroy</on_poweroff></p>
+
+<p><on_reboot>restart</on_reboot></p>
+
+<p><on_crash>restart</on_crash></p>
+
+<p><devices></p>
+
+<p><emulator>/usr/libexec/qemu-kvm</emulator></p>
+
+<p><disk type='file' device='disk'></p>
+
+<p><driver name='qemu' type='qcow2'/></p>
+
+<p><source file='**/root/BARAST1-flat.qemu'**/></p>
+
+<p><target dev='vda' bus='virtio'/></p>
+
+<p></disk></p>
+
+<p><serial type='pty'></p>
+
+<p><target port='0'/></p>
+
+<p></serial></p>
+
+<p><console type='pty'></p>
+
+<p><target port='0'/></p>
+
+<p></console></p>
+
+<p><input type='tablet' bus='usb'/></p>
+
+<p><input type='mouse' bus='ps2'/></p>
+
+<p><graphics type='vnc' port='-1' autoport='yes'/></p>
+
+<p><video></p>
+
+<p><model type='cirrus' vram='9216' heads='1'/></p>
+
+<p></video></p>
+
+<p></devices></p>
+
+<p></domain></p>
+
+<p>Lo que esta en negrita es el disco que vamos a copiar al nuevo server junto al xml. También se puede usar NFS para esta acción pero para mi era mas fácil así .</p>
+
+<p><em># scp <strong>/root/BARAST1-flat.qemu </strong>IP.SERVER.NUEVO:/var/vm/drives/</em></p>
+
+<p><em># scp debian-nagios.xml IP.SERVER.NUEVO:/var/vm/drives/xml</em></p>
+
+<p>Ahora desde el nuevo servidor</p>
+
+<p><em># ssh root@IP.SERVER.NUEVO</em></p>
+
+<p>Editamos el archivo xml</p>
+
+<p><em># cd /var/vm/drives/xml</em></p>
+
+<p><em>#vi debian-nagios.xml</em></p>
+
+<p>cambiamos el path del disco<strong> /root/BARAST1-flat.qemu </strong>por <em><strong>/var/vm/drives/BARAST1-flat.qemu</strong></em></p>
+
+<p>Ahora damos de alta la maquina virtual</p>
+
+<p><em># virsh define debian-nagios.xml</em></p>
+
+<p>Por ultimo la prendemos</p>
+
+<p><em># virsh start debian-nagios</em></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Incrementando la memoria de nuestros VPS]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2011/11/04/incrementando-la-memoria-de-nuestros-vps/"/>
+    <updated>2011-11-04T09:25:40-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2011/11/04/incrementando-la-memoria-de-nuestros-vps</id>
+    <content type="html"><![CDATA[<p>Acá dejo unos comandos para poder editar la ram que tienen asigandos nuestros VPS.</p>
+
+<p><strong>64MB Guaranteed, 128MB Burstable</strong></p>
+
+<pre><code>cid=102
+vzctl set ${cid} --vmguarpages 64M --save
+vzctl set ${cid} --oomguarpages 64M --save
+vzctl set ${cid} --privvmpages 64M:128M --save
+</code></pre>
+
+<p><strong>256MB Guaranteed, 512MB Burstable</strong></p>
+
+<pre><code>cid=102
+vzctl set ${cid} --vmguarpages 256M --save
+vzctl set ${cid} --oomguarpages 256M --save
+vzctl set ${cid} --privvmpages 256M:512M --save
+</code></pre>
+
+<p><strong>512MB Guaranteed, 1024MB Burstable</strong></p>
+
+<pre><code>cid=102
+vzctl set ${cid} --vmguarpages 512M --save
+vzctl set ${cid} --oomguarpages 512M --save
+vzctl set ${cid} --privvmpages 512M:1024M --save
+</code></pre>
+
+<p><strong>1024MB Guaranteed, 2048MB Burstable</strong></p>
+
+<pre><code>cid=102
+vzctl set ${cid} --vmguarpages 1024M --save
+vzctl set ${cid} --oomguarpages 1024M --save
+vzctl set ${cid} --privvmpages 1024M:2048M --save
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Transparencias en Alsamixer]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2011/10/29/transparecias-en-alsamixer/"/>
+    <updated>2011-10-29T23:40:35-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2011/10/29/transparecias-en-alsamixer</id>
+    <content type="html"><![CDATA[<p><a href="http://blog-guerrero.rhcloud.com/uploads/2011/10/alsamixer-transparent.png"><img src="http://blog-guerrero.rhcloud.com/uploads/2011/10/alsamixer-transparent-300x168.png" alt="" /></a>Para poder tener transparencias en el alsamixer tenemos que bajarnos el código fuente y editarlo.</p>
+
+<blockquote><p>apt-get source alsa-utils</p>
+
+<p>cd alsa-utils-*/alsamixer</p></blockquote>
+
+<p>Ahora editamos el archivo colors.c</p>
+
+<pre><code>void init_colors(int use_color) {
+if (!!has_colors() == !!use_color) {
+    start_color();
+    **use_default_colors();**
+    **init_pair(1, COLOR_CYAN, -1);**
+    **init_pair(2, COLOR_YELLOW, -1);**
+    init_pair(3, COLOR_WHITE, COLOR_GREEN);
+    **init_pair(4, COLOR_RED, -1);**
+    **init_pair(5, COLOR_WHITE, -1);**
+    init_pair(6, COLOR_WHITE, COLOR_BLUE);
+    init_pair(7, COLOR_RED, COLOR_BLUE);
+    init_pair(8, COLOR_GREEN, COLOR_GREEN);
+    init_pair(9, COLOR_WHITE, COLOR_RED);
+    #ifdef TRICOLOR_VOLUME_BAR
+    init_pair(10, COLOR_WHITE, COLOR_WHITE);
+    init_pair(11, COLOR_RED, COLOR_RED);
+</code></pre>
+
+<p>después de esto</p>
+
+<blockquote><p>make &amp;&amp; make install</p></blockquote>
+
+<p>Ahora ejecutamos en nuestra terminal alsamixer  y ya tendríamos que tener las transparencias.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[OpenVZ en CentOS]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2011/10/28/openvz-en-centos/"/>
+    <updated>2011-10-28T19:12:34-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2011/10/28/openvz-en-centos</id>
+    <content type="html"><![CDATA[<p><img src="http://upload.wikimedia.org/wikipedia/commons/b/bb/OpenVZ-logo.png" alt="" /><img src="http://upload.wikimedia.org/wikipedia/en/a/a9/CentOS_full_logo.svg" alt="" /></p>
+
+<p>Según wikipedia :</p>
+
+<p>OpenVZ es una tecnología de <a href="http://es.wikipedia.org/wiki/Virtualizaci%C3%B3n">virtualización</a> en el nivel de <a href="http://es.wikipedia.org/wiki/Sistema_operativo">sistema operativo</a> para <a href="http://es.wikipedia.org/wiki/Linux_%28n%C3%BAcleo%29">Linux</a>. OpenVZ permite que un servidor físico ejecute múltiples instancias de sistemas operativos aislados, conocidos como Servidores Privados Virtuales (SPV o VPS en inglés) o Entornos Virtuales (EV)</p>
+
+<p>Para podes instalar OpenVZ lo primero que tenemos que hacer es agregar el repositorio para eso vamos a ejecutar los siguientes comandos:</p>
+
+<blockquote><p>cd /etc/yum.repos.d</p>
+
+<p>wget http://download.openvz.org/openvz.repo</p>
+
+<p>rpm &#8211;import http://download.openvz.org/RPM-GPG-Key-OpenVZ</p></blockquote>
+
+<p>editen el archivo openvz.repo para asegurarse que enable sea igual a 1 para la versión de centos que están usando y 0 para las demás</p>
+
+<p>Ahora instalamos el kernel :</p>
+
+<blockquote><p>yum install vzkernel</p></blockquote>
+
+<p>Hay que asegurarse que en el grub el kernel este elegido como default.</p>
+
+<p>Instalamos las utilidades de administración:</p>
+
+<blockquote><p>yum install vzctl vzquota</p></blockquote>
+
+<p>Configuramos la red, editamos el archivo /etc/sysctl.conf , nos aseguramos que esten estas lineas :</p>
+
+<pre><code>net.ipv4.ip_forward = 1
+net.ipv4.conf.default.proxy_arp = 0
+net.ipv4.conf.all.rp_filter = 1
+kernel.sysrq = 1
+net.ipv4.conf.default.send_redirects = 1
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.icmp_echo_ignore_broadcasts=1
+net.ipv4.conf.default.forwarding=1
+</code></pre>
+
+<p>En el archivo etc/vz/vz.conf tiene que tener esta linea : NEIGHBOUR_DEVS=all , por ultimo tenemos que deshabilitar selinux para esto editamos el archivo /etc/selinux/conf y ponemos  SELINUX=disabled.</p>
+
+<p>Ahora reiniciamos y ya deberíamos poder utilizarlo</p>
+]]></content>
+  </entry>
+  
+</feed>

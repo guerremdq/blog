@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: OpenVZ | Facundo Guerrero]]></title>
+  <link href="http://www.facundoguerrero.com/blog/categories/openvz/atom.xml" rel="self"/>
+  <link href="http://www.facundoguerrero.com/"/>
+  <updated>2013-11-12T22:06:23-03:00</updated>
+  <id>http://www.facundoguerrero.com/</id>
+  <author>
+    <name><![CDATA[Facundo Guerrero]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Creación de vps con openvz]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2011/11/10/creacion-de-vps-con-openvz/"/>
+    <updated>2011-11-10T10:01:39-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2011/11/10/creacion-de-vps-con-openvz</id>
+    <content type="html"><![CDATA[<p>En el post anterior explique como instalar y configurar el kernel de OpenVZ, ahora vamos a hablar sobre como utilizarlo. Nos vamos a centrar en las tareas de crear , eliminar y cambiar las configuraciones de los vps.</p>
+
+<p>Lo primero que necesitamos hacer es descargarnos algún template para crear el vps. Aca estan los templates disponibles http://download.openvz.org/template/precreated/ .  Los templates que descarguemos tenemos que ponerlos en /vz/templates/cache .</p>
+
+<blockquote><p>cd /vz/templates/cache</p>
+
+<p>wget http://download.openvz.org/template/precreated/debian-6.0-x86_64.tar.gz</p></blockquote>
+
+<p>Ahora vamos a crear nuestro primer vps con el template que acabos de descargar</p>
+
+<blockquote><p>vzctl create 101 --ostemplate debian-6.0-x86_64 --ipadd 192.168.0.100</p>
+
+<p>vzctl set 101 --hostname debian-vps --onboot yes --nameserver 8.8.8.8 --nameserver 4.2.2.1 --save</p></blockquote>
+
+<p>Con esto ya creamos el nuevo vps y definimos algunos valores como la ip, el hostnme y los servidores dns. Ahora tenemos que prender nuestro server</p>
+
+<blockquote><p>vzctl start 101</p></blockquote>
+
+<p>Si queremos ejecutar comandos dentro del vps podemos hacerlo haciendo</p>
+
+<blockquote><p>vzctl exec 101 passwd</p></blockquote>
+
+<p>así cambiamos la password de root.</p>
+
+<p>También podemos entrar dentro del vps :</p>
+
+<blockquote><p>vzctl enter 101</p></blockquote>
+
+<p>Ahora vamos a ver los comandos para apagarlo y y eliminarlo</p>
+
+<blockquote><p>vzctl stop 101 #detiene el vps</p>
+
+<p>vzctl destroy 101 #elimina el vps del disco rigido</p></blockquote>
+
+<p>Para ver los vps que tenemos corriendo en nuestro servidor tenemos el siguiente comando</p>
+
+<blockquote><p>vzlist -a</p></blockquote>
+
+<p>Para mas informacion pueden hacer</p>
+
+<blockquote><p>man vzctl</p></blockquote>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Incrementando la memoria de nuestros VPS]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2011/11/04/incrementando-la-memoria-de-nuestros-vps/"/>
+    <updated>2011-11-04T09:25:40-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2011/11/04/incrementando-la-memoria-de-nuestros-vps</id>
+    <content type="html"><![CDATA[<p>Acá dejo unos comandos para poder editar la ram que tienen asigandos nuestros VPS.</p>
+
+<p><strong>64MB Guaranteed, 128MB Burstable</strong></p>
+
+<pre><code>cid=102
+vzctl set ${cid} --vmguarpages 64M --save
+vzctl set ${cid} --oomguarpages 64M --save
+vzctl set ${cid} --privvmpages 64M:128M --save
+</code></pre>
+
+<p><strong>256MB Guaranteed, 512MB Burstable</strong></p>
+
+<pre><code>cid=102
+vzctl set ${cid} --vmguarpages 256M --save
+vzctl set ${cid} --oomguarpages 256M --save
+vzctl set ${cid} --privvmpages 256M:512M --save
+</code></pre>
+
+<p><strong>512MB Guaranteed, 1024MB Burstable</strong></p>
+
+<pre><code>cid=102
+vzctl set ${cid} --vmguarpages 512M --save
+vzctl set ${cid} --oomguarpages 512M --save
+vzctl set ${cid} --privvmpages 512M:1024M --save
+</code></pre>
+
+<p><strong>1024MB Guaranteed, 2048MB Burstable</strong></p>
+
+<pre><code>cid=102
+vzctl set ${cid} --vmguarpages 1024M --save
+vzctl set ${cid} --oomguarpages 1024M --save
+vzctl set ${cid} --privvmpages 1024M:2048M --save
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[OpenVZ en CentOS]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2011/10/28/openvz-en-centos/"/>
+    <updated>2011-10-28T19:12:34-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2011/10/28/openvz-en-centos</id>
+    <content type="html"><![CDATA[<p><img src="http://upload.wikimedia.org/wikipedia/commons/b/bb/OpenVZ-logo.png" alt="" /><img src="http://upload.wikimedia.org/wikipedia/en/a/a9/CentOS_full_logo.svg" alt="" /></p>
+
+<p>Según wikipedia :</p>
+
+<p>OpenVZ es una tecnología de <a href="http://es.wikipedia.org/wiki/Virtualizaci%C3%B3n">virtualización</a> en el nivel de <a href="http://es.wikipedia.org/wiki/Sistema_operativo">sistema operativo</a> para <a href="http://es.wikipedia.org/wiki/Linux_%28n%C3%BAcleo%29">Linux</a>. OpenVZ permite que un servidor físico ejecute múltiples instancias de sistemas operativos aislados, conocidos como Servidores Privados Virtuales (SPV o VPS en inglés) o Entornos Virtuales (EV)</p>
+
+<p>Para podes instalar OpenVZ lo primero que tenemos que hacer es agregar el repositorio para eso vamos a ejecutar los siguientes comandos:</p>
+
+<blockquote><p>cd /etc/yum.repos.d</p>
+
+<p>wget http://download.openvz.org/openvz.repo</p>
+
+<p>rpm --import http://download.openvz.org/RPM-GPG-Key-OpenVZ</p></blockquote>
+
+<p>editen el archivo openvz.repo para asegurarse que enable sea igual a 1 para la versión de centos que están usando y 0 para las demás</p>
+
+<p>Ahora instalamos el kernel :</p>
+
+<blockquote><p>yum install vzkernel</p></blockquote>
+
+<p>Hay que asegurarse que en el grub el kernel este elegido como default.</p>
+
+<p>Instalamos las utilidades de administración:</p>
+
+<blockquote><p>yum install vzctl vzquota</p></blockquote>
+
+<p>Configuramos la red, editamos el archivo /etc/sysctl.conf , nos aseguramos que esten estas lineas :</p>
+
+<pre><code>net.ipv4.ip_forward = 1
+net.ipv4.conf.default.proxy_arp = 0
+net.ipv4.conf.all.rp_filter = 1
+kernel.sysrq = 1
+net.ipv4.conf.default.send_redirects = 1
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.icmp_echo_ignore_broadcasts=1
+net.ipv4.conf.default.forwarding=1
+</code></pre>
+
+<p>En el archivo etc/vz/vz.conf tiene que tener esta linea : NEIGHBOUR_DEVS=all , por ultimo tenemos que deshabilitar selinux para esto editamos el archivo /etc/selinux/conf y ponemos  SELINUX=disabled.</p>
+
+<p>Ahora reiniciamos y ya deberíamos poder utilizarlo</p>
+]]></content>
+  </entry>
+  
+</feed>

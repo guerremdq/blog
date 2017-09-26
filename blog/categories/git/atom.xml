@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: git | Facundo Guerrero]]></title>
+  <link href="http://www.facundoguerrero.com/blog/categories/git/atom.xml" rel="self"/>
+  <link href="http://www.facundoguerrero.com/"/>
+  <updated>2013-11-12T22:06:23-03:00</updated>
+  <id>http://www.facundoguerrero.com/</id>
+  <author>
+    <name><![CDATA[Facundo Guerrero]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Gitweb and Nginx]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2013/11/12/gitweb-and-nginx/"/>
+    <updated>2013-11-12T21:42:00-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2013/11/12/gitweb-and-nginx</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://www.facundoguerrero.com.ar/images/git-logo-big.png" width="300" height="450"></p>
+
+<p>Gitweb es una interfaz web para poder navegar los repositorios de git.</p>
+
+<pre><code>apt-get install gitweb
+</code></pre>
+
+<ul>
+<li>/etc/gitweb.conf : Archivo de configuración de gitweb. Por defecto busca los repositorios en /var/cache/git</li>
+</ul>
+
+
+<p>Nginx</p>
+
+<pre><code>apt-get install nginx 
+apt-get install fcgiwrap spawn-fcgi
+/etc/init.d/fcgiwrap status || /etc/init.d/fcgiwrap start
+</code></pre>
+
+<p>Nginx Conf:</p>
+
+<pre><code>location /index.cgi {
+    root /usr/share/gitweb/;
+    include fastcgi_params;
+    fastcgi_param SCRIPT_NAME $uri;
+    fastcgi_param GITWEB_CONFIG /etc/gitweb.conf;
+    fastcgi_pass  unix:/var/run/fcgiwrap.socket;
+}
+location / {
+    root /usr/share/gitweb/;
+    index index.cgi;
+}
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

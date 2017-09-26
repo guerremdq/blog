@@ -1,0 +1,576 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Facundo Guerrero</title>
+  <meta name="author" content="Facundo Guerrero">
+
+  
+  <meta name="description" content="Gitweb es una interfaz web para poder navegar los repositorios de git. apt-get install gitweb /etc/gitweb.conf : Archivo de configuración de gitweb &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://www.facundoguerrero.com/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Facundo Guerrero" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-26636797-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Facundo Guerrero</a></h1>
+  
+    <h2>Just another Linux Sysadmin</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://duckduckgo.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sites" value="www.facundoguerrero.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/12/gitweb-and-nginx/">Gitweb and Nginx</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-12T21:42:00-03:00" pubdate data-updated="true">Nov 12<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img class="center" src="http://www.facundoguerrero.com.ar/images/git-logo-big.png" width="300" height="450"></p>
+
+<p>Gitweb es una interfaz web para poder navegar los repositorios de git.</p>
+
+<pre><code>apt-get install gitweb
+</code></pre>
+
+<ul>
+<li>/etc/gitweb.conf : Archivo de configuración de gitweb. Por defecto busca los repositorios en /var/cache/git</li>
+</ul>
+
+
+<p>Nginx</p>
+
+<pre><code>apt-get install nginx 
+apt-get install fcgiwrap spawn-fcgi
+/etc/init.d/fcgiwrap status || /etc/init.d/fcgiwrap start
+</code></pre>
+
+<p>Nginx Conf:</p>
+
+<pre><code>location /index.cgi {
+    root /usr/share/gitweb/;
+    include fastcgi_params;
+    fastcgi_param SCRIPT_NAME $uri;
+    fastcgi_param GITWEB_CONFIG /etc/gitweb.conf;
+    fastcgi_pass  unix:/var/run/fcgiwrap.socket;
+}
+location / {
+    root /usr/share/gitweb/;
+    index index.cgi;
+}
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/11/xbox360-vyatta-firewall-rules/">Xbox360 Vyatta Firewall Rules</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-11T13:32:00-03:00" pubdate data-updated="true">Nov 11<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img class="center" src="http://www.facundoguerrero.com.ar/images/vyatta_logo.gif" width="300" height="450"></p>
+
+<p>Para los que no lo concen <a href="http://www.vyatta.org/">Vyatta</a> es una distribución de GNU/Linux basada en <a href="http://www.debian.org">Debian</a> que funciona como router/firewall.</p>
+
+<p>Para que la Xbox se pueda connectar correctamente a XboxLive necesita que se pueda acceder a ella desde internet a los puerto 88 y 3074. En redes donde UPnP esta habilitado no es necesario realizar ninguna configuración en el firewall. En el caso de vyatta hay que crear las siguientes reglas de firewall  y NAT :</p>
+
+<ul>
+<li><p>Firewall rules :</p>
+
+<pre><code>  firewall {
+      name WanIn {
+           default-action drop
+           enable-default-log
+           rule 1 {
+           action drop
+           log enable
+           protocol all
+           state {
+               established enable
+               invalid disable
+               related enable
+           }
+           }
+           rule 2 {
+           action accept
+           description Xbox
+           destination {
+               port 88
+           }
+           protocol udp
+           }
+           rule 3 {
+           action accept
+           description Xbox
+           destination {
+               port 3074
+           }
+           protocol tcp_udp
+           }
+      }
+  }
+</code></pre></li>
+<li><p>NAT Rules :</p>
+
+<pre><code>  nat {
+      destination {
+      rule 2 {
+          destination {
+          port 88
+          }
+          inbound-interface eth2
+          protocol tcp
+          translation {
+          address 192.168.1.15
+          }
+      }
+      rule 2 {
+          description xbox
+          destination {
+          port 3074
+          }
+          inbound-interface eth2
+          protocol tcp_udp
+          translation {
+          address 192.168.1.15
+          }
+      }
+      }
+  }
+</code></pre></li>
+<li><p>192.168.1.15 es la IP de la XBOX</p></li>
+<li>eth2 es la interfaz WAN</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/11/05/instalar-openshift-client-tools-en-debian/">Instalar OpenShift Client Tools en Debian</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-11-05T01:11:00-03:00" pubdate data-updated="true">Nov 5<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img class="center" src="http://blog-guerrero.rhcloud.com/images/openshift.jpeg" width="300" height="450">
+Openshift es una Plataforma como Servicio (PaaS) que permite correr aplicaciones en la nube.</p>
+
+<p>Openshift ofrece mayor flexibilidad que cualquier otra PaaS, soportando más frameworks de desarrollo para Java, Python, PHP y Ruby, incluidos Spring, Seam, Weld, CDI, Rails, Rack, Symfony, Zend Framework, Twisted, Django y Java EE. Incluye base de datos SQL y NoSQL y un sistema de archivos distribuidos.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/11/05/instalar-openshift-client-tools-en-debian/">Leer más →</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/11/04/instalar-octopress-en-debian/">Instalar Octopress en Debian</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-11-04T14:47:00-03:00" pubdate data-updated="true">Nov 4<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img class="center" src="http://blog-guerrero.rhcloud.com/images/octopress2.jpg" width="300" height="450"></p>
+
+<blockquote><p>Octopress es un framework para Jekyll, desarrollado en Ruby, el cual nos permite generar de manera automática los archivos HTML, CSS y Javascript necesarios para poder tener un blog completamente funcional. A diferencia de otros CMS, no utiliza una base de datos para almacenar las entradas del blog y comentarios, en su lugar los post se redactan directamente en archivos de texto plano formateados en Markdown que posteriormente Jekyll se encargara de convertir en HTML</p><footer><strong>Perseo</strong> <cite><a href='http://perseo.desdelinux.net/'>perseo.desdelinux.net/&hellip;</a></cite></footer></blockquote>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/11/04/instalar-octopress-en-debian/">Leer más →</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/10/25/por-que-usar-galera/">¿ Por Qué Usar Galera ?</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-10-25T01:34:00-03:00" pubdate data-updated="true">Oct 25<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img class="center" src="http://www.facundoguerrero.com.ar/images/galera-ok.png" width="300" height="450"></p>
+
+<p>Por qué debemos usar Galera y no usar la replicación común de MySQL</p>
+
+<ul>
+<li><p>Ventajas :</p>
+
+<ul>
+<li>Galera es Multi-Master.</li>
+<li>Galera es syncronico.</li>
+<li>Galera es multi threaded, MySQL no.</li>
+<li>Galera es simple de escalar, MySQL necesita ser configurado manualmente.</li>
+<li>Galera acepta lecturas y escrituras en cualquier nodo, mejora ampliamente la performance.</li>
+<li>Galera no necesita hacer failover.</li>
+<li>Galera está preparado para redes WAN.</li>
+<li>No hay lag con el slave.</li>
+<li>No hay que setear la posision del bin log.</li>
+<li>Control automatico de los miembros.</li>
+<li>Se puede utilizar LoadBalancer.</li>
+<li>Repositorios de Percona y MariaDB.</li>
+</ul>
+</li>
+<li><p>Limitaciones :</p>
+
+<ul>
+<li>Solo soporta InnoDB.</li>
+<li>Se necesita una version de MySQL parcheada.</li>
+<li>Se necesitan 3 nodos para utilizarlo. Se puede utilizar solo 2 nodos + garbd.</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Si todavía no están convencidos de usarlo les recomiendo que lo prueben.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/2/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/11/12/gitweb-and-nginx/">Gitweb and Nginx</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/11/xbox360-vyatta-firewall-rules/">Xbox360 vyatta firewall rules</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/11/05/instalar-openshift-client-tools-en-debian/">Instalar OpenShift client tools en Debian</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/11/04/instalar-octopress-en-debian/">Instalar Octopress en Debian</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/25/por-que-usar-galera/">¿ Por qué usar Galera ?</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/guerremdq">@guerremdq</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'guerremdq',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("guerremdq", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/guerremdq" class="twitter-follow-button" data-show-count="false">Follow @guerremdq</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/105118165545472634563?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Facundo Guerrero -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'facundoguerrero';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,400 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Two Factor authentication in ssh with Google - Facundo Guerrero</title>
+  <meta name="author" content="Facundo Guerrero">
+
+  
+  <meta name="description" content="Siguiendo con el tema de los post anteriores sobre seguridad en nuestros server ssh vamos a agregarle una capa mas de seguridad a este. Para esto &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://www.facundoguerrero.com/blog/2012/01/16/two-factor-authentication-in-ssh-with-google/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Facundo Guerrero" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-26636797-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Facundo Guerrero</a></h1>
+  
+    <h2>Just another Linux Sysadmin</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://duckduckgo.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sites" value="www.facundoguerrero.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Two Factor Authentication in Ssh With Google</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-16T16:49:23-03:00" pubdate data-updated="true">Jan 16<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Siguiendo con el tema de los post anteriores sobre seguridad en nuestros server ssh vamos a agregarle una capa mas de seguridad a este. Para esto vamos a usar Google Authenticator que nos va a permitir tener una <a href="http://en.wikipedia.org/wiki/Two-factor_authentication">autenticación de 2 factores</a> en nuestros servidor.</p>
+
+<p>Primero tenemos que instalar Google Authenticator en nuestros teléfonos celulares .<a href="http://support.google.com/accounts/bin/answer.py?hl=en&amp;answer=1066447"> Link</a></p>
+
+<p>Ahora configuremos nuestro servidor :</p>
+
+<blockquote><p>apt-get install libpam0g-dev hgsvn</p></blockquote>
+
+<p>Ahora descargamos el codigo usando hgsvn y lo compilamos</p>
+
+<blockquote><p>hg clone https://google-authenticator.googlecode.com/hg/ google-authenticator/
+cd google-authenticator/libpam
+make
+make install</p></blockquote>
+
+<p>Para que esto funcione tenemos que agregar esta linea al inicio del archivo /etc/<a href="http://es.wikipedia.org/wiki/Autenticaci%C3%B3n#PAM">pam</a>.d/sshd</p>
+
+<pre><code>auth required pam_google_authenticator.so
+</code></pre>
+
+<p>También tenemos que agregar una linea en la configuracion del daemon ssh en /etc/ssh/sshd_config</p>
+
+<pre><code>ChallengeResponseAuthentication yes
+</code></pre>
+
+<p>Ahora entramos usando la cuenta de usuario que usamos para loguearnos por ssh y ejecutamos el siguiente comando :</p>
+
+<blockquote><p>google-authenticator</p></blockquote>
+
+<p>Este comando nos va a generar las configuraciones para autenticar cada usuario.</p>
+
+<pre><code>Do you want authentication tokens to be time-based (y/n) y
+https://www.google.com/chart?chs=200x200&amp;chld=M|0&amp;cht=qr&amp;chl=otpauth://totp/user@domain%3Fsecret%3**QWE88RTYUI12GE34**
+Your new secret key is:** QWE88RTYUI12GE34**
+Your verification code is 123456
+Your emergency scratch codes are:
+429111197
+211111111
+42222227
+133333330
+344444440
+
+Do you want me to update your "/home/guerre/.google_authenticator" file (y/n) y
+
+Do you want to disallow multiple uses of the same authentication
+token? This restricts you to one login about every 30s, but it increases
+your chances to notice or even prevent man-in-the-middle attacks (y/n) y
+
+By default, tokens are good for 30 seconds and in order to compensate for
+possible time-skew between the client and the server, we allow an extra
+token before and after the current time. If you experience problems with poor
+time synchronization, you can increase the window from its default
+size of 1:30min to about 4min. Do you want to do so (y/n) n
+
+If the computer that you are logging into isn't hardened against brute-force
+login attempts, you can enable rate-limiting for the authentication module.
+By default, this limits attackers to no more than 3 login attempts every 30s.
+Do you want to enable rate-limiting (y/n) y
+</code></pre>
+
+<p>Los emergency scratch codes hay que guardarlos en un lugar seguro ya que en caso de perder el smartphone son los unicos que van a abrir el sistema.</p>
+
+<p>Abrimos la url que nos da y escanemos el código desde nuestro celular con la aplicación google authenticator.</p>
+
+<p><a href="http://blog-guerrero.rhcloud.com/uploads/2012/01/phoneshot.png"><img src="http://blog-guerrero.rhcloud.com/uploads/2012/01/phoneshot-300x173.png" alt="" /></a></p>
+
+<p>Por ultimo reiniciamos el servidor ssh</p>
+
+<blockquote><p>/etc/init.d/ssh restart</p></blockquote>
+
+<p>Ahora cuando nos conectemos por ssh nos va a pedir el código de autenticación</p>
+
+<p><a href="http://blog-guerrero.rhcloud.com/uploads/2012/01/google-token.png"><img src="http://blog-guerrero.rhcloud.com/uploads/2012/01/google-token.png" alt="" /></a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Facundo Guerrero</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-16T16:49:23-03:00" pubdate data-updated="true">Jan 16<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/debian/'>Debian</a>, <a class='category' href='/blog/categories/linux/'>Linux</a>, <a class='category' href='/blog/categories/networking/'>Networking</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://www.facundoguerrero.com/blog/2012/01/16/two-factor-authentication-in-ssh-with-google/" data-via="guerremdq" data-counturl="http://www.facundoguerrero.com/blog/2012/01/16/two-factor-authentication-in-ssh-with-google/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/01/15/nfs-iptables/" title="Previous Post: NFS & Iptables">&laquo; NFS & Iptables</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/10/25/por-que-usar-galera/" title="Next Post: ¿ Por qué usar Galera ?">¿ Por qué usar Galera ? &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/11/12/gitweb-and-nginx/">Gitweb and Nginx</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/11/xbox360-vyatta-firewall-rules/">Xbox360 vyatta firewall rules</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/11/05/instalar-openshift-client-tools-en-debian/">Instalar OpenShift client tools en Debian</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/11/04/instalar-octopress-en-debian/">Instalar Octopress en Debian</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/25/por-que-usar-galera/">¿ Por qué usar Galera ?</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/guerremdq">@guerremdq</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'guerremdq',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("guerremdq", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/guerremdq" class="twitter-follow-button" data-show-count="false">Follow @guerremdq</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/105118165545472634563?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Facundo Guerrero -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'facundoguerrero';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://www.facundoguerrero.com/blog/2012/01/16/two-factor-authentication-in-ssh-with-google/';
+        var disqus_url = 'http://www.facundoguerrero.com/blog/2012/01/16/two-factor-authentication-in-ssh-with-google/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

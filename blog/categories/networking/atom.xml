@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Networking | Facundo Guerrero]]></title>
+  <link href="http://www.facundoguerrero.com/blog/categories/networking/atom.xml" rel="self"/>
+  <link href="http://www.facundoguerrero.com/"/>
+  <updated>2013-11-12T22:06:23-03:00</updated>
+  <id>http://www.facundoguerrero.com/</id>
+  <author>
+    <name><![CDATA[Facundo Guerrero]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Two Factor authentication in ssh with Google]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/01/16/two-factor-authentication-in-ssh-with-google/"/>
+    <updated>2012-01-16T16:49:23-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/01/16/two-factor-authentication-in-ssh-with-google</id>
+    <content type="html"><![CDATA[<p>Siguiendo con el tema de los post anteriores sobre seguridad en nuestros server ssh vamos a agregarle una capa mas de seguridad a este. Para esto vamos a usar Google Authenticator que nos va a permitir tener una <a href="http://en.wikipedia.org/wiki/Two-factor_authentication">autenticación de 2 factores</a> en nuestros servidor.</p>
+
+<p>Primero tenemos que instalar Google Authenticator en nuestros teléfonos celulares .<a href="http://support.google.com/accounts/bin/answer.py?hl=en&amp;answer=1066447"> Link</a></p>
+
+<p>Ahora configuremos nuestro servidor :</p>
+
+<blockquote><p>apt-get install libpam0g-dev hgsvn</p></blockquote>
+
+<p>Ahora descargamos el codigo usando hgsvn y lo compilamos</p>
+
+<blockquote><p>hg clone https://google-authenticator.googlecode.com/hg/ google-authenticator/
+cd google-authenticator/libpam
+make
+make install</p></blockquote>
+
+<p>Para que esto funcione tenemos que agregar esta linea al inicio del archivo /etc/<a href="http://es.wikipedia.org/wiki/Autenticaci%C3%B3n#PAM">pam</a>.d/sshd</p>
+
+<pre><code>auth required pam_google_authenticator.so
+</code></pre>
+
+<p>También tenemos que agregar una linea en la configuracion del daemon ssh en /etc/ssh/sshd_config</p>
+
+<pre><code>ChallengeResponseAuthentication yes
+</code></pre>
+
+<p>Ahora entramos usando la cuenta de usuario que usamos para loguearnos por ssh y ejecutamos el siguiente comando :</p>
+
+<blockquote><p>google-authenticator</p></blockquote>
+
+<p>Este comando nos va a generar las configuraciones para autenticar cada usuario.</p>
+
+<pre><code>Do you want authentication tokens to be time-based (y/n) y
+https://www.google.com/chart?chs=200x200&amp;chld=M|0&amp;cht=qr&amp;chl=otpauth://totp/user@domain%3Fsecret%3**QWE88RTYUI12GE34**
+Your new secret key is:** QWE88RTYUI12GE34**
+Your verification code is 123456
+Your emergency scratch codes are:
+429111197
+211111111
+42222227
+133333330
+344444440
+
+Do you want me to update your "/home/guerre/.google_authenticator" file (y/n) y
+
+Do you want to disallow multiple uses of the same authentication
+token? This restricts you to one login about every 30s, but it increases
+your chances to notice or even prevent man-in-the-middle attacks (y/n) y
+
+By default, tokens are good for 30 seconds and in order to compensate for
+possible time-skew between the client and the server, we allow an extra
+token before and after the current time. If you experience problems with poor
+time synchronization, you can increase the window from its default
+size of 1:30min to about 4min. Do you want to do so (y/n) n
+
+If the computer that you are logging into isn't hardened against brute-force
+login attempts, you can enable rate-limiting for the authentication module.
+By default, this limits attackers to no more than 3 login attempts every 30s.
+Do you want to enable rate-limiting (y/n) y
+</code></pre>
+
+<p>Los emergency scratch codes hay que guardarlos en un lugar seguro ya que en caso de perder el smartphone son los unicos que van a abrir el sistema.</p>
+
+<p>Abrimos la url que nos da y escanemos el código desde nuestro celular con la aplicación google authenticator.</p>
+
+<p><a href="http://blog-guerrero.rhcloud.com/uploads/2012/01/phoneshot.png"><img src="http://blog-guerrero.rhcloud.com/uploads/2012/01/phoneshot-300x173.png" alt="" /></a></p>
+
+<p>Por ultimo reiniciamos el servidor ssh</p>
+
+<blockquote><p>/etc/init.d/ssh restart</p></blockquote>
+
+<p>Ahora cuando nos conectemos por ssh nos va a pedir el código de autenticación</p>
+
+<p><a href="http://blog-guerrero.rhcloud.com/uploads/2012/01/google-token.png"><img src="http://blog-guerrero.rhcloud.com/uploads/2012/01/google-token.png" alt="" /></a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[NFS & Iptables]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/01/15/nfs-iptables/"/>
+    <updated>2012-01-15T08:36:36-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/01/15/nfs-iptables</id>
+    <content type="html"><![CDATA[<p>Para usar iptables en un servidor nfs necesitamos especificar los puertos donde queremos que el servidor corra.</p>
+
+<p>En caso que sea un servidor Debian tenemos que editar varios archivos</p>
+
+<p>/etc/default/nfs-common</p>
+
+<pre><code>STATDOPTS="--port 32765 --outgoing-port 32766"
+</code></pre>
+
+<p>/etc/default/nfs-kernel-server</p>
+
+<pre><code>RPCMOUNTDOPTS="-p 32767"
+</code></pre>
+
+<p>/etc/default/quota</p>
+
+<pre><code>RPCRQUOTADOPTS="-p 32769"
+</code></pre>
+
+<p>/etc/modprobe.d/local.conf</p>
+
+<pre><code> options lockd nlm_udpport=32768 nlm_tcpport=32768
+ options nfs callback_tcpport=32764
+</code></pre>
+
+<p>En caso que sea un servidor CentOS o Redhat editamos el siguiente archivo /etc/sysconfig/nfs</p>
+
+<pre><code>LOCKD_TCPPORT=32768
+LOCKD_UDPPORT=32768
+MOUNTD_PORT=32767
+RQUOTAD_PORT=32769
+STATD_PORT=32765
+STATD_OUTGOING_PORT=32766
+</code></pre>
+
+<p>Este es un ejemplo de los puertos que podemos usar.</p>
+
+<p>Para asegurarnos que estos cambios tuvieron efecto podemos ver la salida del comando rpcinfo</p>
+
+<pre><code>jack ~ # rpcinfo -p localhost
+programa vers proto puerto
+100000 2 tcp 111 portmapper
+100000 2 udp 111 portmapper
+100024 1 udp 32765 status
+100024 1 tcp 32765 status
+100021 1 udp 32768 nlockmgr
+100021 3 udp 32768 nlockmgr
+100021 4 udp 32768 nlockmgr
+100021 1 tcp 32768 nlockmgr
+100021 3 tcp 32768 nlockmgr
+100021 4 tcp 32768 nlockmgr
+100003 2 tcp 2049 nfs
+100003 3 tcp 2049 nfs
+100003 4 tcp 2049 nfs
+100003 2 udp 2049 nfs
+100003 3 udp 2049 nfs
+100003 4 udp 2049 nfs
+100005 1 udp 32767 mountd
+100005 1 tcp 32767 mountd
+100005 2 udp 32767 mountd
+100005 2 tcp 32767 mountd
+100005 3 udp 32767 mountd
+100005 3 tcp 32767 mountd
+</code></pre>
+
+<p>Ahí se ve que los puertos fueron seteados correctamente.</p>
+
+<p><strong>IPTABLES</strong></p>
+
+<p>Primero guardamos nuestra configuración para poder agregarle las nuevas reglas.</p>
+
+<blockquote><p>iptables-save > iptables-nfs</p></blockquote>
+
+<p>editamos el archivo iptables-nfs y agregamos las nuevas reglar para permitir el acceso a servidor nfs solo para nuestra red local
+<div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>IPTABLES </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>#NFS PORTS
+</span><span class='line'>-A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 2049 -j ACCEPT
+</span><span class='line'>-A INPUT -s 192.168.0.0/24 -p udp -m udp --dport 2049 -j ACCEPT
+</span><span class='line'>-A INPUT -p tcp -m tcp --dport 2049 -j DROP
+</span><span class='line'>#Lockd upd &amp; tcp
+</span><span class='line'>-A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 32768 -j ACCEPT
+</span><span class='line'>-A INPUT -s 192.168.0.0/24 -p udp -m udp --dport 32768 -j ACCEPT
+</span><span class='line'>-A INPUT -p tcp -m tcp --dport 32768 -j DROP
+</span><span class='line'>-A INPUT -p udp -m udp --dport 32768 -j DROP
+</span><span class='line'>#portmaper
+</span><span class='line'>-A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 111 -j ACCEPT
+</span><span class='line'>-A INPUT -p tcp -m tcp --dport 111 -j DROP
+</span><span class='line'>#Mountd
+</span><span class='line'>-A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 32767 -j ACCEPT
+</span><span class='line'>-A INPUT -p tcp -m tcp --dport 32767 -j DROP
+</span><span class='line'>#quota
+</span><span class='line'>-A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 32769 -j ACCEPT
+</span><span class='line'>-A INPUT -p tcp -m tcp --dport 32769 -j DROP
+</span><span class='line'>#statd  
+</span><span class='line'>-A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 32765 -j ACCEPT
+</span><span class='line'>-A INPUT -p tcp -m tcp --dport 32765 -j DROP
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Guardamos el archivo con las siguientes reglas y lo restauramos.</p>
+
+<blockquote><p>iptables-restore iptables-nfs</p></blockquote>
+
+<p>Ahora solo van a poder ingresar al nfs los hosts en la red 192.168.0.0/24</p>
+
+<p>Fuentes :</p>
+
+<p>http://wiki.debian.org/SecuringNFS</p>
+
+<p>http://wiki.debian.org/iptables</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Previniendo ataques de fuerza bruta por ssh]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/01/14/previniendo-ataques-de-fuerza-bruta-por-ssh/"/>
+    <updated>2012-01-14T15:24:39-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/01/14/previniendo-ataques-de-fuerza-bruta-por-ssh</id>
+    <content type="html"><![CDATA[<p>Para evitar ataques a nuestro servidor ssh tenemos varios deamons que se encargan de esto, para este ejemplo yo instale denyhost</p>
+
+<p>Para que denyhost funcione tenemos que chequear que nuestro server ssh usar TCP Wrappers</p>
+
+<blockquote><p> ldd /usr/sbin/sshd | grep libwrap</p></blockquote>
+
+<pre><code>libwrap.so.0 =&gt; /lib/libwrap.so.0 (0x00007f3d45b5c000)
+</code></pre>
+
+<p> Luego lo instalamos.</p>
+
+<blockquote><p>apt-get install denyhost</p></blockquote>
+
+<p>denyhost es un script en python que analiza el log del ssh para determinar que hosts están intentando ingresar a la fuerza</p>
+
+<p>La configuración del mismo es muy sencilla. Las opciones que vienen por default son muy utiles.</p>
+
+<blockquote><p>vi /etc/denyhost.conf</p></blockquote>
+
+<pre><code>SECURE_LOG = /var/log/auth.log
+HOSTS_DENY = /etc/hosts.deny
+BLOCK_SERVICE = sshd
+DENY_THRESHOLD_INVALID = 3
+DENY_THRESHOLD_VALID = 5
+DENY_THRESHOLD_ROOT = 1
+ADMIN_EMAIL = root@localhost
+SMTP_HOST = localhost
+SMTP_PORT = 25
+</code></pre>
+
+<p>Con estas opciones bloqueamos a los hosts que quieran ingresar al sistema con un usuario invalido, esto quiere decir que no se encuentra en /etc/passwd, luego de 3 intentos. Los hosts que quieran ingresar con usuarios validos serán bloqueados luego de 5 intentos fallidos y los que quieren ingresar como root serán bloqueados luego de 1 intento .</p>
+
+<p>Cuando bloquee a un host va a mandar un mail a la dirección que le especifiquemos en ADMIN_EMAIL .</p>
+
+<p>Los bloqueos a los hosts lo hace por tcpwrapper desde el archivo /etc/hosts.deny</p>
+
+<blockquote><p>cat /etc/hosts.deny</p></blockquote>
+
+<pre><code>sshd: 121.186.155.197
+sshd: 178.18.18.120
+</code></pre>
+
+<p>En este archivo vamos a encontrar todas las direcciones ip's que denyhost bloqueo .</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Seguridad en el daemon sshd ]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/01/14/seguridad-en-el-daemon-sshd/"/>
+    <updated>2012-01-14T14:27:32-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/01/14/seguridad-en-el-daemon-sshd</id>
+    <content type="html"><![CDATA[<p>Después de haber visto en el post anterior los ataques por fuerza bruta al ssh tenemos que tomar medidas para evitarlos.</p>
+
+<p>Primero vamos a cambiar algunos valores en el daemon sshd , para eso editamos el siguiente archivo /etc/ssh/sshd_config</p>
+
+<p>acá podemos cambiar el puerto en cual escucha el sshd y deshabilitar el acceso como root .</p>
+
+<pre><code>Port 6574
+PermitRootLogin no
+</code></pre>
+
+<p>Ya con esto nuestro ssh no atiende mas en el puerto 22 y no permite loguearse como root.  También podemos desactivar el acceso por password pero para esto necesitaríamos tener copiada la llave publica en las maquinas desde donde estaríamos conectándonos.</p>
+
+<pre><code>PasswordAuthentication no
+</code></pre>
+
+<p>Otra de las opciones que nos da el sshd es permitir solamente que ciertos usuarios o grupos se conecten a el :</p>
+
+<pre><code>AllowGroups ssh_users
+AllowUsers user1 user2
+</code></pre>
+
+<p>Despues de editar estas opciones reiniciamos el daemon :</p>
+
+<blockquote><p>/etc/init.d/ssh restart</p></blockquote>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Direcciones IP sin uso]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/01/04/direcciones-ip-sin-uso/"/>
+    <updated>2012-01-04T11:19:47-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/01/04/direcciones-ip-sin-uso</id>
+    <content type="html"><![CDATA[<p>Si queremos saber que direcciones IP no están siendo utilizadas en un determinado rango podemos usar nmap para obtener esa información</p>
+
+<blockquote><p>nmap -sP -v  192.168.1.1-254 | grep -v nmap | grep down | awk {'print $5'}</p></blockquote>
+
+<p>Este nos va a mostrar todas las ip que en este momento no estan utilizadas en ese rango.</p>
+]]></content>
+  </entry>
+  
+</feed>

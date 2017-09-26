@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: linux | Facundo Guerrero]]></title>
+  <link href="http://www.facundoguerrero.com/blog/categories/linux/atom.xml" rel="self"/>
+  <link href="http://www.facundoguerrero.com/"/>
+  <updated>2013-11-12T22:06:23-03:00</updated>
+  <id>http://www.facundoguerrero.com/</id>
+  <author>
+    <name><![CDATA[Facundo Guerrero]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Instalar OpenShift client tools en Debian]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/11/05/instalar-openshift-client-tools-en-debian/"/>
+    <updated>2012-11-05T01:11:00-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/11/05/instalar-openshift-client-tools-en-debian</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://blog-guerrero.rhcloud.com/images/openshift.jpeg" width="300" height="450">
+Openshift es una Plataforma como Servicio (PaaS) que permite correr aplicaciones en la nube.</p>
+
+<p>Openshift ofrece mayor flexibilidad que cualquier otra PaaS, soportando más frameworks de desarrollo para Java, Python, PHP y Ruby, incluidos Spring, Seam, Weld, CDI, Rails, Rack, Symfony, Zend Framework, Twisted, Django y Java EE. Incluye base de datos SQL y NoSQL y un sistema de archivos distribuidos.</p>
+
+<!-- more -->
+
+
+<p>Primer paso , instalmos los paquetes necesarios :</p>
+
+<pre><code>aptitude install git-core openssh-client ruby ruby-dev rubygems libopenssl-ruby
+</code></pre>
+
+<p>Segundo paso, instalamos el gem de ruby para openshift.</p>
+
+<pre><code>gem install --source http://gems.rubyforge.org --source https://openshift.redhat.com/app/repo/ rhc
+</code></pre>
+
+<p>Cuando esto finalice podemos empezar a utilizar la utilidad rhc.</p>
+
+<pre><code>$ rhc --help
+Usage: rhc (&lt;resource&gt; | --help) [&lt;action&gt;] [&lt;args&gt;]
+Command line interface for OpenShift.
+
+List of Commands and Resources
+  app                Manage applications within the OpenShift account.
+  domain             Manage the domain and namespace for your applications.
+  port-forward       Forward remote ports to the workstation
+  server             Display information about the status of the OpenShift service.
+  setup              Easy to use wizard for getting started with OpenShift.
+  sshkey             Manage multiple keys for the registered rhcloud user.
+
+Global Options
+  -l, --rhlogin login       OpenShift login
+  -p, --password password   OpenShift password
+  -d, --debug               Turn on debugging
+  --noprompt                Do not ask for input
+  --config FILE             Path of a different config file
+  -h, --help                Display help documentation
+  -v, --version             Display version information
+  -t, --trace               Display backtrace when an error occurs
+
+See 'rhc help &lt;resource&gt;' for more specifics on each resource or command.
+</code></pre>
+
+<p>Más información en https://openshift.redhat.com/app/</p>
+]]></content>
+  </entry>
+  
+</feed>

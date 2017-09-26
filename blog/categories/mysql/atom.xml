@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: mysql | Facundo Guerrero]]></title>
+  <link href="http://www.facundoguerrero.com/blog/categories/mysql/atom.xml" rel="self"/>
+  <link href="http://www.facundoguerrero.com/"/>
+  <updated>2013-11-12T22:06:23-03:00</updated>
+  <id>http://www.facundoguerrero.com/</id>
+  <author>
+    <name><![CDATA[Facundo Guerrero]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[¿ Por qué usar Galera ?]]></title>
+    <link href="http://www.facundoguerrero.com/blog/2012/10/25/por-que-usar-galera/"/>
+    <updated>2012-10-25T01:34:00-03:00</updated>
+    <id>http://www.facundoguerrero.com/blog/2012/10/25/por-que-usar-galera</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://www.facundoguerrero.com.ar/images/galera-ok.png" width="300" height="450"></p>
+
+<p>Por qué debemos usar Galera y no usar la replicación común de MySQL</p>
+
+<ul>
+<li><p>Ventajas :</p>
+
+<ul>
+<li>Galera es Multi-Master.</li>
+<li>Galera es syncronico.</li>
+<li>Galera es multi threaded, MySQL no.</li>
+<li>Galera es simple de escalar, MySQL necesita ser configurado manualmente.</li>
+<li>Galera acepta lecturas y escrituras en cualquier nodo, mejora ampliamente la performance.</li>
+<li>Galera no necesita hacer failover.</li>
+<li>Galera está preparado para redes WAN.</li>
+<li>No hay lag con el slave.</li>
+<li>No hay que setear la posision del bin log.</li>
+<li>Control automatico de los miembros.</li>
+<li>Se puede utilizar LoadBalancer.</li>
+<li>Repositorios de Percona y MariaDB.</li>
+</ul>
+</li>
+<li><p>Limitaciones :</p>
+
+<ul>
+<li>Solo soporta InnoDB.</li>
+<li>Se necesita una version de MySQL parcheada.</li>
+<li>Se necesitan 3 nodos para utilizarlo. Se puede utilizar solo 2 nodos + garbd.</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Si todavía no están convencidos de usarlo les recomiendo que lo prueben.</p>
+]]></content>
+  </entry>
+  
+</feed>

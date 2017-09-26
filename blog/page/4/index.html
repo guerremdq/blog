@@ -1,0 +1,382 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Facundo Guerrero</title>
+  <meta name="author" content="Facundo Guerrero">
+
+  
+  <meta name="description" content="Para poder tener transparencias en el alsamixer tenemos que bajarnos el código fuente y editarlo. apt-get source alsa-utils cd alsa-utils-*/alsamixer &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://www.facundoguerrero.com/blog/page/4/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Facundo Guerrero" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-26636797-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Facundo Guerrero</a></h1>
+  
+    <h2>Just another Linux Sysadmin</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://duckduckgo.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sites" value="www.facundoguerrero.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/10/29/transparecias-en-alsamixer/">Transparencias en Alsamixer</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-10-29T23:40:35-03:00" pubdate data-updated="true">Oct 29<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://blog-guerrero.rhcloud.com/uploads/2011/10/alsamixer-transparent.png"><img src="http://blog-guerrero.rhcloud.com/uploads/2011/10/alsamixer-transparent-300x168.png" alt="" /></a>Para poder tener transparencias en el alsamixer tenemos que bajarnos el código fuente y editarlo.</p>
+
+<blockquote><p>apt-get source alsa-utils</p>
+
+<p>cd alsa-utils-*/alsamixer</p></blockquote>
+
+<p>Ahora editamos el archivo colors.c</p>
+
+<pre><code>void init_colors(int use_color) {
+if (!!has_colors() == !!use_color) {
+    start_color();
+    **use_default_colors();**
+    **init_pair(1, COLOR_CYAN, -1);**
+    **init_pair(2, COLOR_YELLOW, -1);**
+    init_pair(3, COLOR_WHITE, COLOR_GREEN);
+    **init_pair(4, COLOR_RED, -1);**
+    **init_pair(5, COLOR_WHITE, -1);**
+    init_pair(6, COLOR_WHITE, COLOR_BLUE);
+    init_pair(7, COLOR_RED, COLOR_BLUE);
+    init_pair(8, COLOR_GREEN, COLOR_GREEN);
+    init_pair(9, COLOR_WHITE, COLOR_RED);
+    #ifdef TRICOLOR_VOLUME_BAR
+    init_pair(10, COLOR_WHITE, COLOR_WHITE);
+    init_pair(11, COLOR_RED, COLOR_RED);
+</code></pre>
+
+<p>después de esto</p>
+
+<blockquote><p>make &amp;&amp; make install</p></blockquote>
+
+<p>Ahora ejecutamos en nuestra terminal alsamixer  y ya tendríamos que tener las transparencias.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/10/28/openvz-en-centos/">OpenVZ en CentOS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-10-28T19:12:34-03:00" pubdate data-updated="true">Oct 28<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img src="http://upload.wikimedia.org/wikipedia/commons/b/bb/OpenVZ-logo.png" alt="" /><img src="http://upload.wikimedia.org/wikipedia/en/a/a9/CentOS_full_logo.svg" alt="" /></p>
+
+<p>Según wikipedia :</p>
+
+<p>OpenVZ es una tecnología de <a href="http://es.wikipedia.org/wiki/Virtualizaci%C3%B3n">virtualización</a> en el nivel de <a href="http://es.wikipedia.org/wiki/Sistema_operativo">sistema operativo</a> para <a href="http://es.wikipedia.org/wiki/Linux_%28n%C3%BAcleo%29">Linux</a>. OpenVZ permite que un servidor físico ejecute múltiples instancias de sistemas operativos aislados, conocidos como Servidores Privados Virtuales (SPV o VPS en inglés) o Entornos Virtuales (EV)</p>
+
+<p>Para podes instalar OpenVZ lo primero que tenemos que hacer es agregar el repositorio para eso vamos a ejecutar los siguientes comandos:</p>
+
+<blockquote><p>cd /etc/yum.repos.d</p>
+
+<p>wget http://download.openvz.org/openvz.repo</p>
+
+<p>rpm &#8211;import http://download.openvz.org/RPM-GPG-Key-OpenVZ</p></blockquote>
+
+<p>editen el archivo openvz.repo para asegurarse que enable sea igual a 1 para la versión de centos que están usando y 0 para las demás</p>
+
+<p>Ahora instalamos el kernel :</p>
+
+<blockquote><p>yum install vzkernel</p></blockquote>
+
+<p>Hay que asegurarse que en el grub el kernel este elegido como default.</p>
+
+<p>Instalamos las utilidades de administración:</p>
+
+<blockquote><p>yum install vzctl vzquota</p></blockquote>
+
+<p>Configuramos la red, editamos el archivo /etc/sysctl.conf , nos aseguramos que esten estas lineas :</p>
+
+<pre><code>net.ipv4.ip_forward = 1
+net.ipv4.conf.default.proxy_arp = 0
+net.ipv4.conf.all.rp_filter = 1
+kernel.sysrq = 1
+net.ipv4.conf.default.send_redirects = 1
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.icmp_echo_ignore_broadcasts=1
+net.ipv4.conf.default.forwarding=1
+</code></pre>
+
+<p>En el archivo etc/vz/vz.conf tiene que tener esta linea : NEIGHBOUR_DEVS=all , por ultimo tenemos que deshabilitar selinux para esto editamos el archivo /etc/selinux/conf y ponemos  SELINUX=disabled.</p>
+
+<p>Ahora reiniciamos y ya deberíamos poder utilizarlo</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/3/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/11/12/gitweb-and-nginx/">Gitweb and Nginx</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/11/xbox360-vyatta-firewall-rules/">Xbox360 vyatta firewall rules</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/11/05/instalar-openshift-client-tools-en-debian/">Instalar OpenShift client tools en Debian</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/11/04/instalar-octopress-en-debian/">Instalar Octopress en Debian</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/25/por-que-usar-galera/">¿ Por qué usar Galera ?</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/guerremdq">@guerremdq</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'guerremdq',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("guerremdq", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/guerremdq" class="twitter-follow-button" data-show-count="false">Follow @guerremdq</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/105118165545472634563?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Facundo Guerrero -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'facundoguerrero';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
